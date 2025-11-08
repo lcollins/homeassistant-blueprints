@@ -98,7 +98,7 @@ blueprint:
           min: 10
           max: 100
           unit_of_measurement: percentage
-        default: 100
+      default: 100
     timeout:
       name: "Deactivation timeout?"
       description: "After how many minutes does the switch turn off automatically (-1 if no timeout)"
@@ -173,8 +173,12 @@ condition:
                   -  "{{ as_timestamp(now()) >= ((as_timestamp(sun_dusk) - dusk_start_hour*3600 - dusk_start_minute*60) )}}"
                   -  "{{ as_timestamp(now()) < ((as_timestamp(sun_rising) + rising_start_hour*3600 + rising_start_minute*60) )}}"
 action:
+  #- service: light.turn_on
+  #  target: !input light_target
   - service: light.turn_on
     target: !input light_target
+    data:
+      brightness_pct: !input brightness_pct
   - wait_for_trigger:
       platform: state
       entity_id: !input motion_entity
