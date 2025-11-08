@@ -91,7 +91,7 @@ blueprint:
           unit_of_measurement: minutes
       default: 0
     brightness_pct:
-      name: "Brightness (percentage)
+      name: "Brightness (percentage)"
       description: "Light Brightness"
       selector:
         number:
