@@ -90,6 +90,15 @@ blueprint:
           max: 59
           unit_of_measurement: minutes
       default: 0
+    brightness_pct:
+      name: "Brightness (percentage)
+      description: "Light Brightness"
+      selector:
+        number:
+          min: 10
+          max: 100
+          unit_of_measurement: percentage
+        default: 100
     timeout:
       name: "Deactivation timeout?"
       description: "After how many minutes does the switch turn off automatically (-1 if no timeout)"
