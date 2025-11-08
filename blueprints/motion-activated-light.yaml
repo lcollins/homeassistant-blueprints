@@ -10,9 +10,9 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
-          device_class: motion
-          domain: binary_sensor
-          device_class: occupancy
+          device_class:
+            - motion
+            - occupancy
     light_target:
       name: Light
       selector:
@@ -39,13 +39,13 @@ blueprint:
       selector:
         boolean:
       default: false
-    wheater_handling:
+    weather_handling:
       name: "Enable meteo managment?"
       description: "Does it also take weather into account to enable/disable motion sensors (use the time range only when it's sunny and disable otherwise)?"
       selector:
         boolean:
       default: false
-    wheater_entity:
+    weather_entity:
       name: "Weather status sensor"
       description: "This sensor is used only with the Meteo managment option to determine if the weather is sunny or not (useful if you are in a room usually dark in case of bad weather condition"
       selector:
@@ -119,12 +119,11 @@ trigger:
   from: "off"
   to: "on"
 variables:
-  # Make input my_input available as a script level variable
   dusk_start_hour: !input sunset_start_hh
   dusk_start_minute: !input sunset_start_mm
   rising_start_hour: !input sunrise_start_hh
   rising_start_minute: !input sunrise_start_mm
-  use_weather: !input wheater_handling
+  use_weather: !input weather_handling
   skip_light_on: !input skip_if_light_is_on
   target_lights: !input light_target
   force_skip: >
@@ -154,9 +153,9 @@ variables:
     {%- else -%}
         {{ states.sun.sun.last_changed }}
     {%- endif %}
-  wheater_sensor: !input wheater_entity
-  no_sunny_wheater: >
-    {{ states(wheater_sensor) != 'sunny' and use_weather }}
+  weather_sensor: !input weather_entity
+  no_sunny_weather: >
+    {{ states(weather_sensor) != 'sunny' and use_weather }}
 condition:
   - condition: and
     conditions:
@@ -167,14 +166,12 @@ condition:
               - condition: template
                 value_template: !input no_sunset_handling
               - condition: template
-                value_template: "{{ no_sunny_wheater }}"
+                value_template: "{{ no_sunny_weather }}"
               - condition: and
                 conditions:
                   -  "{{ as_timestamp(now()) >= ((as_timestamp(sun_dusk) - dusk_start_hour*3600 - dusk_start_minute*60) )}}"
                   -  "{{ as_timestamp(now()) < ((as_timestamp(sun_rising) + rising_start_hour*3600 + rising_start_minute*60) )}}"
 action:
-  #- service: light.turn_on
-  #  target: !input light_target
   - service: light.turn_on
     target: !input light_target
     data:
