@@ -101,7 +101,7 @@ blueprint:
       default: 100
     timeout:
       name: "Deactivation timeout?"
-      description: "After how many minutes does the switch turn off automatically (-1 if no timeout)"
+      description: "Maximum minutes to wait for motion to stop before starting the wait time anyway (0 or -1 for no timeout: always wait for motion to stop)"
       selector:
         number:
           min: -1
@@ -124,6 +124,7 @@ variables:
   rising_start_hour: !input sunrise_start_hh
   rising_start_minute: !input sunrise_start_mm
   use_weather: !input weather_handling
+  timeout_minutes: !input timeout
   disable_sun_handling: !input no_sunset_handling
   skip_light_on: !input skip_if_light_is_on
   target_lights: !input light_target
@@ -177,16 +178,24 @@ action:
     target: !input light_target
     data:
       brightness_pct: !input brightness_pct
-  - wait_for_trigger:
-      platform: state
-      entity_id: !input motion_entity
-      from: "on"
-      to: "off"
-    timeout:
-      hours: 0
-      minutes: !input timeout
-      seconds: 0
-      milliseconds: 0
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ timeout_minutes | int(0) > 0 }}"
+        sequence:
+          - wait_for_trigger:
+              platform: state
+              entity_id: !input motion_entity
+              from: "on"
+              to: "off"
+            timeout:
+              minutes: "{{ timeout_minutes | int }}"
+    default:
+      - wait_for_trigger:
+          platform: state
+          entity_id: !input motion_entity
+          from: "on"
+          to: "off"
   - delay: !input no_motion_wait
   - service: light.turn_off
     target: !input light_target
