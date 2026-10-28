@@ -124,6 +124,7 @@ variables:
   rising_start_hour: !input sunrise_start_hh
   rising_start_minute: !input sunrise_start_mm
   use_weather: !input weather_handling
+  disable_sun_handling: !input no_sunset_handling
   skip_light_on: !input skip_if_light_is_on
   target_lights: !input light_target
   force_skip: >
@@ -164,7 +165,7 @@ condition:
         - condition: or
           conditions:
               - condition: template
-                value_template: !input no_sunset_handling
+                value_template: "{{ disable_sun_handling }}"
               - condition: template
                 value_template: "{{ no_sunny_weather }}"
               - condition: and
